@@ -9,3 +9,11 @@ typdef struct t_node{
   struct t_node * left;
   struct t_node * right;
 }t_node;
+
+typdef struct p_queue{
+  t_node * * t_arr;
+  int head;
+  int tail;
+}
+
+#endif
