@@ -21,7 +21,9 @@ int main(int argc, char * * argv){
   
   p_queue * heap_head = createHeap(freq_count);
 
-  huff_tree = create_huff_tree(heap_head);
+  t_node * huff_tree = build_huff_tree(heap_head);
+
+  free(huff_tree);
 
   fclose(inf);
   return EXIT_SUCCESS;
@@ -31,7 +33,7 @@ void read_file(FILE * infile, long * char_count){
   int c;
   while (1){
     c = fgetc(infile);
-    if (c == EOF){
+    if (c == EOF)
       break;
     char_count[c]++;
   }
@@ -40,9 +42,9 @@ void read_file(FILE * infile, long * char_count){
 
 t_node * create_t_node(long count, int label){
   t_node * node = malloc(sizeof(t_node));
-  t_node->count = count;
-  t_node->label = label;
-  return t_node;
+  node->count = count;
+  node->label = label;
+  return node;
 }
 
 void insert_heap(p_queue * heap_head, t_node * ins_node){
@@ -80,8 +82,8 @@ p_queue * createHeap(long * freq){
 
 t_node * remove_min(p_queue * heap_head){
   if (heap_head->size > 0){
-    min_element = heap_head->t_arr[0];
-    last_element = heap_head->t_arr[heap_head->size - 1];
+    t_node * min_element = heap_head->t_arr[0];
+    t_node * last_element = heap_head->t_arr[heap_head->size - 1];
     heap_head->t_arr[heap_head->size - 1] = NULL;
     heap_head->t_arr[0] = last_element;
     heap_head->size--;
@@ -96,25 +98,26 @@ void downward_heapify(t_node * * t_arr, int size){
   int i = 1;
   while(i < size / 2){
     int j = 2 * i;
-    if (j < n and t_arr[j - 1]->count < t_arr[j]->count){
+    if (j < size && t_arr[j - 1]->count < t_arr[j]->count){
       j += 1;
     }
-    else if (temp->count >= t_arr[j - 1]){
+    else if (temp->count >= t_arr[j - 1]->count){
       break;
     }
     else{
-      t_arr[i - 1] = t_arr[j - 1]
+      t_arr[i - 1] = t_arr[j - 1];
       i = j;
     }
+  }
   t_arr[i - 1] = temp;
   return;
 }
 
 t_node * build_huff_tree(p_queue * heap_head){
   while (heap_head->size != 1){
-    t_node * tmp_left = removeMin(heap_head);
-    t_node * tmp_right = removeMin(heap_head);
-    t_node * top = create_t_node(tmp_left->count + tmp->right + count, 0);
+    t_node * tmp_left = remove_min(heap_head);
+    t_node * tmp_right = remove_min(heap_head);
+    t_node * top = create_t_node(tmp_left->count + tmp_right->count, 0);
 
     top->left = tmp_left;
     top->right = tmp_right;
