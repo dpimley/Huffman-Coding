@@ -13,7 +13,7 @@ typdef struct t_node{
 typdef struct p_queue{
   t_node * * t_arr;
   int head;
-  int tail;
+  int size;
 }
 
 #endif
