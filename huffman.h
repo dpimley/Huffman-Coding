@@ -30,6 +30,6 @@ void downward_heapify(t_node * * t_arr, int size, int root);
 
 t_node * build_huff_tree(p_queue * heap_head);
 
-void print_pre_order(t_node * head);
+void print_header(t_node * head, FILE * outfile, int depth);
 
 #endif

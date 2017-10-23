@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "huffman.h"
 
 int main(int argc, char * * argv){
@@ -23,7 +24,16 @@ int main(int argc, char * * argv){
 
   t_node * huff_tree = build_huff_tree(heap_head);
 
-  print_pre_order(huff_tree);
+  char * out_string = strcat(argv[1], ".huff");
+
+  FILE * outf = fopen(out_string, "w");
+
+  if (outf == NULL){
+    printf("ERROR: Output file pointer initialized to NULL.\n");
+    return EXIT_FAILURE;
+  }
+
+  print_header(huff_tree, outf, 0);
 
   free(huff_tree);
 
@@ -141,17 +151,17 @@ void print_header(t_node * head, FILE * outfile, int depth){
   
 
   if (head->left == NULL && head->right == NULL){
-    fputc("1", outfile);
+    fputc(49, outfile);
     fputc(head->label, outfile);
     return;
   }
 
-  fputc("0", outfile);
+  fputc(48, outfile);
 
   print_header(head->left, outfile, depth + 1);
   print_header(head->right, outfile, depth + 1);
 
   if (!depth)
-    fputc("0", outfile);
+    fputc(48, outfile);
   return;
 }
