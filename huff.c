@@ -20,7 +20,9 @@ int main(int argc, char * * argv){
   long * freq_count = calloc(ASCII_COUNT, sizeof(long));
 
   read_file(inf, freq_count);
-  
+ 
+  freq_count[256] = 1; //pseudo eof frequency count
+ 
   p_queue * heap_head = createHeap(freq_count);
 
   t_node * huff_tree = build_huff_tree(heap_head);
@@ -39,6 +41,18 @@ int main(int argc, char * * argv){
   bit_code * code_table = malloc(sizeof(bit_code) * ASCII_COUNT);
 
   create_huff_table(code_table, huff_tree, 0, 0);
+
+  //int i;
+  //for (i = 0; i < ASCII_COUNT; i++){
+  //  if (freq_count[i] != 0){
+  //    if (i == 256){
+  //      printf("EOF: %d, %d\n", code_table[i].code, code_table[i].length);
+  //   }
+  //   else{
+  //      printf("%c: %d, %d\n", i, code_table[i].code, code_table[i].length);
+  //    }
+  //  }
+  //}
 
   fseek(inf, 0, SEEK_SET);
 
@@ -160,8 +174,13 @@ void print_header(t_node * head, FILE * outfile, int depth){
   
 
   if (head->left == NULL && head->right == NULL){
-    fputc(49, outfile);
-    fputc(head->label, outfile);
+    if (head->label != 256){
+      fputc(49, outfile);
+      fputc(head->label, outfile);
+    }
+    else if (head->label == 256){
+      fputc(50, outfile);
+    }
     return;
   }
 
@@ -194,7 +213,20 @@ void write_compressed_data(FILE * infile, FILE * outfile, bit_code * huff_table)
   int buffer = 0, number_added = 0;
   while(1){
     c = fgetc(infile);
-    if (c == EOF){     
+    if (c == EOF){
+      int len_eof = huff_table[256].length;
+      int eof_code = huff_table[256].code;
+      while (len_eof > 0){
+        int off_eof = (eof_code & (int)pow(2.0, (double)(len_eof - 1))) >>(len_eof - 1);
+        buffer = (buffer << 1) | off_eof;
+        number_added++;
+        len_eof--;
+        if (number_added == 8){
+          fputc(buffer, outfile);
+          number_added = 0;
+          buffer = 0;
+        }
+      }
       break;
     }
     else{
@@ -213,5 +245,12 @@ void write_compressed_data(FILE * infile, FILE * outfile, bit_code * huff_table)
       }
     }    
   }
-  return;
+  if (number_added == 0){
+    return;
+  }
+  else{
+    buffer = buffer << (8 - number_added);
+    fputc(buffer, outfile);
+    return;
+  }
 }
