@@ -40,6 +40,8 @@ int main(int argc, char * * argv){
 
   create_huff_table(code_table, huff_tree, 0, 0);
 
+  fseek(inf, 0, SEEK_SET);
+
   write_compressed_data(inf, outf, code_table);
 
   free(huff_tree);
@@ -197,14 +199,16 @@ void write_compressed_data(FILE * infile, FILE * outfile, bit_code * huff_table)
     }
     else{
       int len_code = huff_table[c].length;
-      int char_code = huff_table[c].code;
       while (len_code > 0){
-        buffer = (buffer << 1) | (char_code & (int)pow(2.0, (double)len_code));
+        int char_code = huff_table[c].code;
+        int offset = (char_code & (int)pow(2.0, (double)(len_code - 1))) >> (len_code - 1);
+        buffer = (buffer << 1) | offset;
         number_added++;
         len_code--;
         if (number_added == 8){
           fputc(buffer, outfile);
           number_added = 0;
+          buffer = 0;
         }
       }
     }    
