@@ -4,7 +4,7 @@
 #define ASCII_COUNT 256
 
 typedef struct t_node{
-  int count;
+  long count;
   int label;
   struct t_node * left;
   struct t_node * right;
@@ -26,8 +26,10 @@ p_queue * createHeap(long * freq);
 
 t_node * remove_min(p_queue * heap_head);
 
-void downward_heapify(t_node * * t_arr, int size);
+void downward_heapify(t_node * * t_arr, int size, int root);
 
 t_node * build_huff_tree(p_queue * heap_head);
+
+void print_pre_order(t_node * head);
 
 #endif

@@ -23,6 +23,8 @@ int main(int argc, char * * argv){
 
   t_node * huff_tree = build_huff_tree(heap_head);
 
+  print_pre_order(huff_tree);
+
   free(huff_tree);
 
   fclose(inf);
@@ -70,6 +72,7 @@ void insert_heap(p_queue * heap_head, t_node * ins_node){
 p_queue * createHeap(long * freq){
   p_queue * heap_head = malloc(sizeof(p_queue));
   heap_head->t_arr = malloc(ASCII_COUNT * sizeof(t_node *));
+  heap_head->size = 0;
   int i;
   for (i = 0; i < ASCII_COUNT; i++){
     if (freq[i]){
@@ -87,43 +90,68 @@ t_node * remove_min(p_queue * heap_head){
     heap_head->t_arr[heap_head->size - 1] = NULL;
     heap_head->t_arr[0] = last_element;
     heap_head->size--;
-    downward_heapify(heap_head->t_arr, heap_head->size);
+    downward_heapify(heap_head->t_arr, heap_head->size, 0);
     return min_element;
   }
   return 0;
 }
 
-void downward_heapify(t_node * * t_arr, int size){
-  t_node * temp = t_arr[0];
-  int i = 1;
-  while(i < size / 2){
-    int j = 2 * i;
-    if (j < size && t_arr[j - 1]->count < t_arr[j]->count){
-      j += 1;
-    }
-    else if (temp->count >= t_arr[j - 1]->count){
-      break;
-    }
-    else{
-      t_arr[i - 1] = t_arr[j - 1];
-      i = j;
+void downward_heapify(t_node * * t_arr, int size, int root){
+  int left_idx = (2 * root) + 1;
+  int right_idx = (2 * root) + 2;
+  t_node * min_node = NULL;
+  if (left_idx >= size && right_idx >= size){
+    return;
+  }
+  if (left_idx < size && t_arr[root]->count <= t_arr[left_idx]->count){
+    if (right_idx < size && t_arr[root]->count <= t_arr[right_idx]->count){
+      return;
     }
   }
-  t_arr[i - 1] = temp;
-  return;
+  if (right_idx < size && t_arr[right_idx]->count <= t_arr[left_idx]->count){
+    min_node = t_arr[right_idx];
+    t_arr[right_idx] = t_arr[root];
+    t_arr[root] = min_node;
+    downward_heapify(t_arr, size, right_idx);
+  }
+  else{
+    min_node = t_arr[left_idx];
+    t_arr[left_idx] = t_arr[root];
+    t_arr[root] = min_node;
+    downward_heapify(t_arr, size, left_idx);
+  }
+ return; 
 }
 
 t_node * build_huff_tree(p_queue * heap_head){
   while (heap_head->size != 1){
     t_node * tmp_left = remove_min(heap_head);
     t_node * tmp_right = remove_min(heap_head);
-    t_node * top = create_t_node(tmp_left->count + tmp_right->count, 0);
+    t_node * top = create_t_node(tmp_left->count + tmp_right->count, 42);
 
     top->left = tmp_left;
     top->right = tmp_right;
 
     insert_heap(heap_head, top);
   }
-
   return heap_head->t_arr[0];
+}
+
+void print_header(t_node * head, FILE * outfile, int depth){
+  
+
+  if (head->left == NULL && head->right == NULL){
+    fputc("1", outfile);
+    fputc(head->label, outfile);
+    return;
+  }
+
+  fputc("0", outfile);
+
+  print_header(head->left, outfile, depth + 1);
+  print_header(head->right, outfile, depth + 1);
+
+  if (!depth)
+    fputc("0", outfile);
+  return;
 }
