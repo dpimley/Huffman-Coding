@@ -33,7 +33,13 @@ int main(int argc, char * * argv){
     return EXIT_FAILURE;
   }
 
+
   print_header(huff_tree, outf, 0);
+
+  bit_code * code_table = malloc(sizeof(bit_code) * ASCII_COUNT);
+
+  create_huff_table(code_table, huff_tree, 0, 0);
+
 
   free(huff_tree);
 
@@ -163,5 +169,18 @@ void print_header(t_node * head, FILE * outfile, int depth){
 
   if (!depth)
     fputc(48, outfile);
+  return;
+}
+
+void create_huff_table(bit_code * huff_table, t_node * head, int cur_path, int depth){
+  if (head->left == NULL && head->right == NULL){
+    huff_table[head->label].code = cur_path;
+    huff_table[head->label].length = depth;
+    return;
+  }
+
+  create_huff_table(huff_table, head->right, (cur_path * 10) + 1, depth + 1);
+  create_huff_table(huff_table, head->left, (cur_path * 10) + 8, depth + 1);
+
   return;
 }

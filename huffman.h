@@ -16,6 +16,11 @@ typedef struct p_queue{
   int size;
 }p_queue;
 
+typedef struct bit_code{
+  int code;
+  int length;
+}bit_code;
+
 void read_file(FILE * infile, long * char_count);
 
 t_node * create_t_node(long count, int label);
@@ -31,5 +36,7 @@ void downward_heapify(t_node * * t_arr, int size, int root);
 t_node * build_huff_tree(p_queue * heap_head);
 
 void print_header(t_node * head, FILE * outfile, int depth);
+
+void create_huff_table(bit_code * huff_table, t_node * head, int cur_path, int depth);
 
 #endif
