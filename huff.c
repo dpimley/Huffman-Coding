@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 #include "huffman.h"
 
 int main(int argc, char * * argv){
@@ -33,13 +34,13 @@ int main(int argc, char * * argv){
     return EXIT_FAILURE;
   }
 
-
   print_header(huff_tree, outf, 0);
 
   bit_code * code_table = malloc(sizeof(bit_code) * ASCII_COUNT);
 
   create_huff_table(code_table, huff_tree, 0, 0);
 
+  write_compressed_data(inf, outf, code_table);
 
   free(huff_tree);
 
@@ -178,9 +179,35 @@ void create_huff_table(bit_code * huff_table, t_node * head, int cur_path, int d
     huff_table[head->label].length = depth;
     return;
   }
+  int cur_left = (cur_path << 1) | 0;
+  int cur_right = (cur_path << 1) | 1;
 
-  create_huff_table(huff_table, head->right, (cur_path * 10) + 1, depth + 1);
-  create_huff_table(huff_table, head->left, (cur_path * 10) + 8, depth + 1);
+  create_huff_table(huff_table, head->right, cur_right, depth + 1);
+  create_huff_table(huff_table, head->left, cur_left, depth + 1);
+  return;
+}
 
+void write_compressed_data(FILE * infile, FILE * outfile, bit_code * huff_table){
+  int c;
+  int buffer = 0, number_added = 0;
+  while(1){
+    c = fgetc(infile);
+    if (c == EOF){     
+      break;
+    }
+    else{
+      int len_code = huff_table[c].length;
+      int char_code = huff_table[c].code;
+      while (len_code > 0){
+        buffer = (buffer << 1) | (char_code & (int)pow(2.0, (double)len_code));
+        number_added++;
+        len_code--;
+        if (number_added == 8){
+          fputc(buffer, outfile);
+          number_added = 0;
+        }
+      }
+    }    
+  }
   return;
 }

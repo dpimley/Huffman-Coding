@@ -39,4 +39,6 @@ void print_header(t_node * head, FILE * outfile, int depth);
 
 void create_huff_table(bit_code * huff_table, t_node * head, int cur_path, int depth);
 
+void write_compressed_data(FILE * infile, FILE * outfile, bit_code * huff_table);
+
 #endif
