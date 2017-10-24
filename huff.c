@@ -54,7 +54,7 @@ int main(int argc, char * * argv){
 
   //prints the header of the compressed file
 
-  print_header(huff_tree, outf, 0);
+  print_header(huff_tree, outf);
 
   //creates a table of codes for each character present in the input file
 
@@ -210,7 +210,7 @@ t_node * build_huff_tree(p_queue * heap_head){
 
 //function prints the header of the compressed file (preorder traversal)
 
-void print_header(t_node * head, FILE * outfile, int depth){
+void print_header(t_node * head, FILE * outfile){
   if (head->left == NULL && head->right == NULL){
     if (head->label != 256){
       fputc(49, outfile);
@@ -224,11 +224,11 @@ void print_header(t_node * head, FILE * outfile, int depth){
 
   fputc(48, outfile);
 
-  print_header(head->left, outfile, depth + 1);
-  print_header(head->right, outfile, depth + 1);
+  print_header(head->left, outfile);
+  print_header(head->right, outfile);
 
-  if (!depth)
-    fputc(48, outfile);
+  //if (!depth)
+  //  fputc(48, outfile);
   return;
 }
 

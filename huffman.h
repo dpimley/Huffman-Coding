@@ -35,7 +35,7 @@ void downward_heapify(t_node * * t_arr, int size, int root);
 
 t_node * build_huff_tree(p_queue * heap_head);
 
-void print_header(t_node * head, FILE * outfile, int depth);
+void print_header(t_node * head, FILE * outfile);
 
 void create_huff_table(bit_code * huff_table, t_node * head, int cur_path, int depth);
 

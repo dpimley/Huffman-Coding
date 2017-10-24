@@ -22,11 +22,11 @@ int main(int argc, char * * argv){
 
   //print_pre_order(huff_tree);
 
-  int c = fgetc(inf);
+  //int c = fgetc(inf);
 
-  if (c != '0'){
-    printf("ERROR in HUFFMAN HEADER\n");
-  }
+  //if (c != '0'){
+  //  printf("ERROR in HUFFMAN HEADER\n");
+  //}
   
   strcat(argv[1], ".unhuff");
 
