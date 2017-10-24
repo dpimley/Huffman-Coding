@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <math.h>
 #include "huffman.h"
 
 int main(int argc, char * * argv){
@@ -260,7 +259,7 @@ void write_compressed_data(FILE * infile, FILE * outfile, bit_code * huff_table)
       int len_eof = huff_table[256].length;
       int eof_code = huff_table[256].code;
       while (len_eof > 0){
-        int off_eof = (eof_code & (int)pow(2.0, (double)(len_eof - 1))) >>(len_eof - 1);
+        int off_eof = (eof_code >> (len_eof - 1)) & 1;
         buffer = (buffer << 1) | off_eof;
         number_added++;
         len_eof--;
@@ -276,7 +275,7 @@ void write_compressed_data(FILE * infile, FILE * outfile, bit_code * huff_table)
       int len_code = huff_table[c].length;
       while (len_code > 0){
         int char_code = huff_table[c].code;
-        int offset = (char_code & (int)pow(2.0, (double)(len_code - 1))) >> (len_code - 1);
+        int offset = (char_code >> (len_code - 1)) & 1;
         buffer = (buffer << 1) | offset;
         number_added++;
         len_code--;

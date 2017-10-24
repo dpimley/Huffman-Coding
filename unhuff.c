@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
 #include <string.h>
 #include "huffman.h"
 
@@ -39,6 +38,10 @@ int main(int argc, char * * argv){
   }
 
   print_file(inf, outf, huff_tree);
+
+  free(huff_tree);
+  fclose(inf);
+  fclose(outf);
  
   return EXIT_SUCCESS;
 }
@@ -49,6 +52,8 @@ t_node * create_t_node(long count, int label){
   node->label = label;
   return node;
 }
+
+//function reads the header and creates a huffman tree equivalent to the one used in huff
 
 void read_header(t_node * * head, FILE * infile){
   unsigned char c;
@@ -74,6 +79,8 @@ void read_header(t_node * * head, FILE * infile){
   }
 }
 
+//function helps debug read_header by printing the preorder traversal of the tree
+
 void print_pre_order(t_node * head){
   if (head == NULL){
     return;
@@ -92,6 +99,8 @@ void print_pre_order(t_node * head){
 
   return;
 }
+
+//function that reads in the input file and prints out the ascii char the huffman code represents
 
 void print_file(FILE * infile, FILE * outfile, t_node * head){
   int buffer = 0, total = 0, eof_flag = 0, dir = 0;
