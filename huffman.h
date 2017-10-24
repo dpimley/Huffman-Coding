@@ -1,7 +1,7 @@
 #ifndef HUFF_H
 #define HUFF_H
-
-#define ASCII_COUNT 256
+//257 to include all ascii characters and the pseudo-EOF character
+#define ASCII_COUNT 257
 
 typedef struct t_node{
   long count;
@@ -41,4 +41,9 @@ void create_huff_table(bit_code * huff_table, t_node * head, int cur_path, int d
 
 void write_compressed_data(FILE * infile, FILE * outfile, bit_code * huff_table);
 
+
+
+void read_header(t_node * * head, FILE * infile);
+
+void print_pre_order(t_node * head);
 #endif
