@@ -21,11 +21,13 @@ int main(int argc, char * * argv){
 
   read_header(&huff_tree, inf);
 
-  print_pre_order(huff_tree);
+  //print_pre_order(huff_tree);
 
   int c = fgetc(inf);
 
-  //printf("%c\n", c);
+  if (c != '0'){
+    printf("ERROR in HUFFMAN HEADER\n");
+  }
   
   strcat(argv[1], ".unhuff");
 
@@ -35,6 +37,8 @@ int main(int argc, char * * argv){
     printf("ERROR: Output file pointer initialized to NULL.\n");
     return EXIT_FAILURE;
   }
+
+  print_file(inf, outf, huff_tree);
  
   return EXIT_SUCCESS;
 }
@@ -89,19 +93,14 @@ void print_pre_order(t_node * head){
   return;
 }
 
-void print_file(FILE * outfile, t_node * head){
-  int buffer = 0, total = 8, prn_flag = 0, eof_flag = 0, dir = 0;
+void print_file(FILE * infile, FILE * outfile, t_node * head){
+  int buffer = 0, total = 0, eof_flag = 0, dir = 0;
   t_node * cur = head;
   while (!eof_flag){
-    fread(&buffer, 1, 1, infile);
-    dir = (buffer >> (total - 1)) & 1;
-    if (dir == 0){
-      cur = cur->left;
+    if (total == 0){
+      fread(&buffer, 1, 1, infile);
+      total = 8;
     }
-    else if (dir == 1){
-      cur = cur->right;
-    }
-
     if (cur->left == NULL && cur->right == NULL){
       if (cur->label == 256){
         eof_flag = 1;
@@ -111,7 +110,14 @@ void print_file(FILE * outfile, t_node * head){
         cur = head;
       }
     }
+    dir = (buffer >> (total - 1)) & 1;
+    if (dir == 0){
+      cur = cur->left;
     }
-  
+    else if (dir == 1){
+      cur = cur->right;
+    }
+    total--;
+  } 
  return;
-
+}

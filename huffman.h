@@ -46,4 +46,6 @@ void write_compressed_data(FILE * infile, FILE * outfile, bit_code * huff_table)
 void read_header(t_node * * head, FILE * infile);
 
 void print_pre_order(t_node * head);
+
+void print_file(FILE * infile, FILE * outfile, t_node * head);
 #endif
