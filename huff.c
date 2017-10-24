@@ -5,10 +5,15 @@
 #include "huffman.h"
 
 int main(int argc, char * * argv){
+
+  //Return error if there is more than 1 inputs
+
   if (argc != 2){
     printf("ERROR: Incorrect number of inputs. Usage is huff <input file>.\n");
     return EXIT_FAILURE;
   }
+
+  //Create input file pointer, return if NULL
 
   FILE * inf = fopen(argv[1], "r");
 
@@ -17,15 +22,27 @@ int main(int argc, char * * argv){
     return EXIT_FAILURE;
   }
 
+  //create array (initialized to 0) to hold frequency of characters read in
+
   long * freq_count = calloc(ASCII_COUNT, sizeof(long));
 
+  //read in file and populate frequency count array
+
   read_file(inf, freq_count);
+
+  //initialize last element (pseudo eof) to have frequency 1
  
-  freq_count[256] = 1; //pseudo eof frequency count
+  freq_count[256] = 1;
+
+  //create the initial priority queue that holds pointers to t_node trees 
  
   p_queue * heap_head = createHeap(freq_count);
 
+  //creates the huffman tree
+
   t_node * huff_tree = build_huff_tree(heap_head);
+
+  //builds the output file string name and opens the file, if the file is NULL return error
 
   char * out_string = strcat(argv[1], ".huff");
 
@@ -36,7 +53,11 @@ int main(int argc, char * * argv){
     return EXIT_FAILURE;
   }
 
+  //prints the header of the compressed file
+
   print_header(huff_tree, outf, 0);
+
+  //creates a table of codes for each character present in the input file
 
   bit_code * code_table = malloc(sizeof(bit_code) * ASCII_COUNT);
 
@@ -56,13 +77,19 @@ int main(int argc, char * * argv){
 
   fseek(inf, 0, SEEK_SET);
 
+  //write out compressed data to output file
+
   write_compressed_data(inf, outf, code_table);
 
+  free(freq_count);
   free(huff_tree);
-
+  free(code_table);
   fclose(inf);
+  fclose(outf);
   return EXIT_SUCCESS;
 }
+
+//function reads until EOF and populates the frequency count array
 
 void read_file(FILE * infile, long * char_count){
   int c;
@@ -75,12 +102,16 @@ void read_file(FILE * infile, long * char_count){
   return;
 }
 
+//function given a count and a label creates a t_node and returns a pointer to it
+
 t_node * create_t_node(long count, int label){
   t_node * node = malloc(sizeof(t_node));
   node->count = count;
   node->label = label;
   return node;
 }
+
+//function inserts a t_node struct in the proper location in the priority queue
 
 void insert_heap(p_queue * heap_head, t_node * ins_node){
   if (heap_head->size == 0){
@@ -102,6 +133,8 @@ void insert_heap(p_queue * heap_head, t_node * ins_node){
   return;
 }
 
+//function creates an initial priority queue based on the frequency counts of the read chars
+
 p_queue * createHeap(long * freq){
   p_queue * heap_head = malloc(sizeof(p_queue));
   heap_head->t_arr = malloc(ASCII_COUNT * sizeof(t_node *));
@@ -116,6 +149,8 @@ p_queue * createHeap(long * freq){
   return heap_head;
 }
 
+//function removes the minimum from the priority queue
+
 t_node * remove_min(p_queue * heap_head){
   if (heap_head->size > 0){
     t_node * min_element = heap_head->t_arr[0];
@@ -128,6 +163,8 @@ t_node * remove_min(p_queue * heap_head){
   }
   return 0;
 }
+
+//function puts head of priority queue into correct place within heap
 
 void downward_heapify(t_node * * t_arr, int size, int root){
   int left_idx = (2 * root) + 1;
@@ -156,6 +193,8 @@ void downward_heapify(t_node * * t_arr, int size, int root){
  return; 
 }
 
+//function takes in the head of a priority queue and returns a pointer to a huffman tree
+
 t_node * build_huff_tree(p_queue * heap_head){
   while (heap_head->size != 1){
     t_node * tmp_left = remove_min(heap_head);
@@ -170,9 +209,9 @@ t_node * build_huff_tree(p_queue * heap_head){
   return heap_head->t_arr[0];
 }
 
-void print_header(t_node * head, FILE * outfile, int depth){
-  
+//function prints the header of the compressed file (preorder traversal)
 
+void print_header(t_node * head, FILE * outfile, int depth){
   if (head->left == NULL && head->right == NULL){
     if (head->label != 256){
       fputc(49, outfile);
@@ -194,6 +233,8 @@ void print_header(t_node * head, FILE * outfile, int depth){
   return;
 }
 
+//function creates a table of huffman codes values
+
 void create_huff_table(bit_code * huff_table, t_node * head, int cur_path, int depth){
   if (head->left == NULL && head->right == NULL){
     huff_table[head->label].code = cur_path;
@@ -207,6 +248,8 @@ void create_huff_table(bit_code * huff_table, t_node * head, int cur_path, int d
   create_huff_table(huff_table, head->left, cur_left, depth + 1);
   return;
 }
+
+//function converts each character from an input file into its respective huffman value
 
 void write_compressed_data(FILE * infile, FILE * outfile, bit_code * huff_table){
   int c;
