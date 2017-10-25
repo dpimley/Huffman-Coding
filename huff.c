@@ -157,7 +157,7 @@ t_node * remove_min(p_queue * heap_head){
     heap_head->t_arr[heap_head->size - 1] = NULL;
     heap_head->t_arr[0] = last_element;
     heap_head->size--;
-    downward_heapify(heap_head->t_arr, heap_head->size, 0);
+    sift_down(heap_head->t_arr, heap_head->size, 0);
     return min_element;
   }
   return 0;
@@ -165,7 +165,7 @@ t_node * remove_min(p_queue * heap_head){
 
 //function puts head of priority queue into correct place within heap
 
-void downward_heapify(t_node * * t_arr, int size, int root){
+void sift_down(t_node * * t_arr, int size, int root){
   int left_idx = (2 * root) + 1;
   int right_idx = (2 * root) + 2;
   t_node * min_node = NULL;
@@ -181,13 +181,13 @@ void downward_heapify(t_node * * t_arr, int size, int root){
     min_node = t_arr[right_idx];
     t_arr[right_idx] = t_arr[root];
     t_arr[root] = min_node;
-    downward_heapify(t_arr, size, right_idx);
+    sift_down(t_arr, size, right_idx);
   }
   else{
     min_node = t_arr[left_idx];
     t_arr[left_idx] = t_arr[root];
     t_arr[root] = min_node;
-    downward_heapify(t_arr, size, left_idx);
+    sift_down(t_arr, size, left_idx);
   }
  return; 
 }
@@ -198,12 +198,12 @@ t_node * build_huff_tree(p_queue * heap_head){
   while (heap_head->size != 1){
     t_node * tmp_left = remove_min(heap_head);
     t_node * tmp_right = remove_min(heap_head);
-    t_node * top = create_t_node(tmp_left->count + tmp_right->count, 42);
+    t_node * parent = create_t_node(tmp_left->count + tmp_right->count, 42);
 
-    top->left = tmp_left;
-    top->right = tmp_right;
+    parent->left = tmp_left;
+    parent->right = tmp_right;
 
-    insert_heap(heap_head, top);
+    insert_heap(heap_head, parent);
   }
   return heap_head->t_arr[0];
 }
